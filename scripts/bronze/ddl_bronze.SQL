@@ -1,125 +1,56 @@
-create or alter procedure bronze.load_bronze as begin
+use master;
+create database DataWarehouse;
+use DataWarehouse;
+create schema bronze;
+create schema silver;
+create schema gold;
 
-declare @start_time datetime, @end_time datetime
-begin try
-
-print '=======================================';
-print 'Loading Bronze Layer';
-print '=======================================';
-
-print '---------------------------------------';
-print 'Loading CRM Tables';
-print '---------------------------------------';
-
-set @start_time = getdate();
-print '>> Truncating Table: bronze.crm_cust_info'
-truncate table bronze.crm_cust_info;
-
-print '>> Inserting Data Into: bronze.crm_cust_info'
-Bulk insert bronze.crm_cust_info
-from 'F:\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
-with (
-firstrow = 2,
-fieldterminator = ',',
-tablock
+create table bronze.crm_cust_info (
+cst_id int,
+cst_key nvarchar(50),
+cst_firstname nvarchar(50),
+cst_lastname nvarchar(50),
+cst_material_status nvarchar(50),
+cst_gndr nvarchar(50),
+cst_create_date date
 );
-set @end_time = getdate();
-print '>> Load Duration: ' + CAST(datediff(second, @start_time, @end_time) as nvarchar) + ' seconds';
-print '----------------'
 
-set @start_time = getdate();
-print '>> Truncating Table: bronze.crm_prd_info'
-truncate table bronze.crm_prd_info;
-
-print '>> Inserting Data Into: bronze.crm_prd_info'
-bulk insert bronze.crm_prd_info
-from 'F:\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
-with (
-firstrow = 2,
-fieldterminator = ',',
-tablock
+create table bronze.crm_prd_info (
+prd_id int,
+prd_key nvarchar(50),
+prd_nm nvarchar(50),
+prd_cost int,
+prd_line nvarchar(50),
+prd_start_dt datetime,
+prd_end_dt datetime
 );
-set @end_time = getdate();
-print '>> Load Duration: ' + CAST(datediff(second, @start_time, @end_time) as nvarchar) + ' seconds';
-print '----------------'
 
-set @start_time = getdate();
-print '>> Truncating Table: bronze.crm_sales_details'
-truncate table bronze.crm_sales_details;
-
-print '>> Inserting Data Into: bronze.crm_sales_details'
-bulk insert bronze.crm_sales_details
-from 'F:\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
-with (
-firstrow = 2,
-fieldterminator = ',',
-tablock
+create table bronze.crm_sales_details (
+sls_ord_num nvarchar(50),
+sls_prd_key nvarchar(50),
+sls_cust_id int,
+sls_order_dt int,
+sls_ship_dt int,
+sls_due_dt int,
+sls_sales int,
+sls_quantity int,
+sls_price int
 );
-set @end_time = getdate();
-print '>> Load Duration: ' + CAST(datediff(second, @start_time, @end_time) as nvarchar) + ' seconds';
-print '----------------'
 
-print '---------------------------------------';
-print 'Loading ERP Tables';
-print '---------------------------------------';
-
-set @start_time = getdate();
-print '>> Truncating Table: bronze.erp_loc_a101'
-truncate table bronze.erp_loc_a101;
-
-print '>> Inserting Data Into: bronze.erp_loc_a101'
-bulk insert bronze.erp_loc_a101
-from 'F:\sql-data-warehouse-project\datasets\source_erp\loc_a101.csv'
-with (
-firstrow = 2,
-fieldterminator = ',',
-tablock
+create table bronze.erp_loc_a101 (
+cid nvarchar(50),
+cntry nvarchar(50)
 );
-set @end_time = getdate();
-print '>> Load Duration: ' + CAST(datediff(second, @start_time, @end_time) as nvarchar) + ' seconds';
-print '----------------'
 
-set @start_time = getdate();
-print '>> Truncating Table: bronze.erp_cust_az12'
-truncate table bronze.erp_cust_az12;
-
-print '>> Inserting Data Into: bronze.erp_cust_a12'
-bulk insert bronze.erp_cust_az12
-from 'F:\sql-data-warehouse-project\datasets\source_erp\cust_az12.csv'
-with (
-firstrow = 2,
-fieldterminator = ',',
-tablock
+create table bronze.erp_cust_az12 (
+cid nvarchar(50),
+bdate date,
+gen nvarchar(50)
 );
-set @end_time = getdate();
-print '>> Load Duration: ' + CAST(datediff(second, @start_time, @end_time) as nvarchar) + ' seconds';
-print '----------------'
 
-set @start_time = getdate();
-print '>> Truncating Table: bronze.erp_px_cat_g1v2'
-truncate table bronze.erp_px_cat_g1v2;
-
-print '>> Inserting Data Into: bronze.erp_px_cat_g1v2'
-bulk insert bronze.erp_px_cat_g1v2
-from 'F:\sql-data-warehouse-project\datasets\source_erp\px_cat_g1v2.csv'
-with (
-firstrow = 2,
-fieldterminator = ',',
-tablock
+create table bronze.erp_px_cat_g1v2 (
+id nvarchar(50),
+cat nvarchar(50),
+subcat nvarchar(50),
+maintainance nvarchar(50)
 );
-set @end_time = getdate();
-print '>> Load Duration: ' + CAST(datediff(second, @start_time, @end_time) as nvarchar) + ' seconds';
-print '----------------'
-
-end try
-begin catch
-
-print '=======================================';
-print 'Error occured during loading bronze layer';
-print 'Error Message' + Error_Message();
-print 'Error Message' + CAST (Error_number() as nvarchar);
-print 'Error Message' + CAST (Error_state() as nvarchar);
-print '=======================================';
-
-end catch
-end
